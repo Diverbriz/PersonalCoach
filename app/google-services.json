@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "863051977560",
+    "project_id": "personal-coach-c1684",
+    "storage_bucket": "personal-coach-c1684.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:863051977560:android:552ce9ea606a298adbcb2d",
+        "android_client_info": {
+          "package_name": "com.example.personalcoach"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "863051977560-u3h5af778c9hl2i1o22vnltvbqjfce05.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_-9auIQMkYGRhMWnZIrzxeBtspyvyvzk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "863051977560-u3h5af778c9hl2i1o22vnltvbqjfce05.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
