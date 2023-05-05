@@ -26,7 +26,11 @@ class CalendarEventProvider(private val context: Context) {
         private const val PROJECTION_SYNC_EVENTS_INDEX = 5
         private const val PROJECTION_ACCOUNT_NAME_INDEX = 6
         private const val PROJECTION_ACCOUNT_TYPE_INDEX = 7
+
+
     }
+
+
 
     fun cleanData(
         list: MutableList<CalendarItem>
@@ -34,7 +38,9 @@ class CalendarEventProvider(private val context: Context) {
         list.clear()
     }
 
-    @SuppressLint("Recycle")
+
+
+
     fun getCalendars(
         list: MutableList<CalendarItem>
     ){
