@@ -2,20 +2,20 @@ package com.example.personalcoach.view.bottomNavigation.setting.view
 
 import android.Manifest.permission.READ_CALENDAR
 import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,13 +27,12 @@ import com.example.personalcoach.ui.theme.ExtendedJetTheme
 import com.example.personalcoach.view.bottomNavigation.setting.viewmodel.CalendarViewModel
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
-private lateinit var calendarEventProvider: CalendarEventProvider
 
 
+@RequiresApi(Build.VERSION_CODES.N)
 @Composable
 fun CalendarScreen(
     mViewModel: CalendarViewModel = viewModel(),
@@ -41,19 +40,24 @@ fun CalendarScreen(
 //    var date by remember {
 //        mutableStateOf("")
 //    }
+    lateinit var calendarEventProvider: CalendarEventProvider
 
     val scrollState = rememberScrollState()
 
-    val data = mViewModel.data
+
+    val observeItem = mViewModel._calendarItem.observeAsState()
+
+    val observeEvent = mViewModel._calendarEvent.observeAsState()
+
+
 
     val context = LocalContext.current
     calendarEventProvider = CalendarEventProvider(context = context)
 
-
     requestPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
             if (it) {
-                calendarEventProvider.getCalendars(data)
+                mViewModel._calendarItem.value = calendarEventProvider.getCalendars()
             } else {
                 Toast.makeText(
                     context,
@@ -67,9 +71,7 @@ fun CalendarScreen(
     Column(
         modifier = Modifier
             .padding(top = 30.dp)
-            .fillMaxSize()
-//            .verticalScroll(scrollState)
-           ,
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 //        AndroidView(factory = {CalendarView(it)}, update = {
@@ -84,8 +86,8 @@ fun CalendarScreen(
                     .background(ExtendedJetTheme.colors.tintColor)
                     .clickable {
                         scope.launch(Dispatchers.Main) {
-                            println("${data.size}")
-
+//                            requestPermissionLauncher.launch(READ_CALENDAR)
+                            mViewModel._calendarEvent.value = calendarEventProvider.getEvents(1)
                         }
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -97,16 +99,27 @@ fun CalendarScreen(
             }
 
         LazyColumn(){
-            items(data.size){
-                ListItem(calendarItem = data[it])
-            }
+            observeItem.value?.let {data -> items(data.size){
+                ListItem(calendarItem = data[it], modifier =
+                Modifier
+                    .fillMaxWidth(0.6f)
+                    .padding(ExtendedJetTheme.shapes.padding)
+                    .border(
+                        width = 2.dp,
+                        color = ExtendedJetTheme.colors.tintColor,
+                        shape = ExtendedJetTheme.shapes.cornersStyle
+                    ).
+                clickable {
+                    scope.launch {
+                        mViewModel._calendarEvent.value = calendarEventProvider.getEvents(data[it].id)
+                    }
+                })
+            } }
         }
 
-        val flag = remember{
-            mutableStateOf(false)
-        }
+
         LaunchedEffect(Unit) {
-            val job = launch(start = CoroutineStart.LAZY) {
+            val job = launch(start = CoroutineStart.DEFAULT) {
                 println("Зашли в корутин скоуп")
                 if (ContextCompat.checkSelfPermission(
                         context,
@@ -114,7 +127,7 @@ fun CalendarScreen(
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
                     println("Разрешение есть")
-                    calendarEventProvider.getCalendars(data)
+                    mViewModel._calendarItem.value = calendarEventProvider.getCalendars()
                 } else {
                     requestPermissionLauncher.launch(READ_CALENDAR)
                 }
@@ -124,23 +137,21 @@ fun CalendarScreen(
             job.join()
 
             println("Дождались выполнения корутины" +
-                    " dataSize = ${data.size}")
+                    " dataSize = ${mViewModel._calendarItem.value?.size}")
+
         }
-
-
-
     }
 }
 
 @Composable
 fun ListItem(
-    calendarItem: CalendarItem
+    calendarItem: CalendarItem,
+    modifier: Modifier = Modifier
 ){
+    println(calendarItem.color)
     Row(
-        modifier = Modifier
-            .fillMaxWidth(0.6f)
-            .padding(ExtendedJetTheme.shapes.padding)
-            .border(width = 2.dp, color = ExtendedJetTheme.colors.tintColor, shape = ExtendedJetTheme.shapes.cornersStyle)
+        modifier = modifier
+
     ) {
         Box(modifier = Modifier
             .width(5.dp)

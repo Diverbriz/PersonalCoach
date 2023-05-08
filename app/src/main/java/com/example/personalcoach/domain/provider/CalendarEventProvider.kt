@@ -2,13 +2,16 @@ package com.example.personalcoach.domain.provider
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.provider.CalendarContract
+import androidx.annotation.RequiresApi
+import com.example.personalcoach.domain.model.calendar.CalendarEvent
 import com.example.personalcoach.domain.model.calendar.CalendarItem
 
 class CalendarEventProvider(private val context: Context) {
 
     companion object {
-        private val EVENT_PROJECTION = arrayOf(
+        private val CALENDAR_PROJECTION = arrayOf(
             CalendarContract.Calendars._ID,
             CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,
             CalendarContract.Calendars.NAME,
@@ -18,6 +21,16 @@ class CalendarEventProvider(private val context: Context) {
             CalendarContract.Calendars.ACCOUNT_NAME,
             CalendarContract.Calendars.ACCOUNT_TYPE,
         )
+
+        private val EVENT_PROJECTION = arrayOf(
+            CalendarContract.Events.CALENDAR_ID,
+            CalendarContract.Events.ORGANIZER,
+            CalendarContract.Events.TITLE,
+            CalendarContract.Events.DESCRIPTION,
+            CalendarContract.Events.DTSTART,
+            CalendarContract.Events.DTEND
+        )
+
         private const val PROJECTION_ID_INDEX = 0
         private const val PROJECTION_DISPLAY_NAME_INDEX = 1
         private const val PROJECTION_NAME_INDEX = 2
@@ -30,22 +43,46 @@ class CalendarEventProvider(private val context: Context) {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
+    fun getEvents(calendarId: Long): List<CalendarEvent>{
+        val list = mutableListOf<CalendarEvent>()
 
+        val uri = CalendarContract.Events.CONTENT_URI
 
-    fun cleanData(
-        list: MutableList<CalendarItem>
-    ){
-        list.clear()
+        val selectionArgs = arrayOf(
+            "$calendarId"
+        )
+
+        val cursor = context.contentResolver
+            .query(uri, EVENT_PROJECTION, "${CalendarContract.Events.CALENDAR_ID}=?", selectionArgs, null)
+
+        while (cursor?.moveToNext() == true){
+            val calendarId = cursor.getLong(0)
+            val organizer = cursor.getString(1)
+            val title = cursor.getString(2)
+            val description = cursor.getString(3)
+            val dtstart = cursor.getString(4)
+            val dtend = cursor.getString(5)
+
+            println("$calendarId, $organizer, $title, $description, $dtstart, $dtend")
+
+            list.add(CalendarEvent(
+                calendarId, organizer, title, description, null, dtend)
+            )
+        }
+        cursor?.close()
+
+//        list
+//            .stream()
+//            .map { println(it.toString()) }
+        return list
     }
 
-
-
-
-    fun getCalendars(
-        list: MutableList<CalendarItem>
-    ){
+    fun getCalendars():List<CalendarItem>
+    {
 //        calendarItemAdapter.clearData()
-        list.clear()
+        val list = mutableListOf<CalendarItem>()
+
         val uri = CalendarContract.Calendars.CONTENT_URI
 
         val selectionKey = ""
@@ -53,7 +90,7 @@ class CalendarEventProvider(private val context: Context) {
         val selectionArgs = emptyArray<String>()
 
         val cursor = context.contentResolver
-            .query(uri, EVENT_PROJECTION,  selectionKey, selectionArgs, null)
+            .query(uri, CALENDAR_PROJECTION,  selectionKey, selectionArgs, null)
 
         while (cursor?.moveToNext() == true){
             val calId = cursor.getLong(PROJECTION_ID_INDEX)
@@ -81,6 +118,8 @@ class CalendarEventProvider(private val context: Context) {
         }
 
         cursor?.close()
+
+        return list
     }
 
 

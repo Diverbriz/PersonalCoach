@@ -24,6 +24,9 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import androidx.security.crypto.MasterKeys
 import com.example.personalcoach.data.features.LocaleSettingsEventBus
+import com.example.personalcoach.data.features.UserSettingImpl
+import com.example.personalcoach.data.features.UserSettings
+import com.example.personalcoach.domain.SettingsBundle
 import com.example.personalcoach.domain.model.SlideScreen
 import com.example.personalcoach.ui.theme.*
 import com.example.personalcoach.view.Slider
@@ -39,9 +42,16 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.flow.MutableStateFlow
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var userSettings: UserSettings
+
+    lateinit var setting: SettingsBundle
 
     private val startForResultSignIn =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -59,6 +69,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
+
+            val context = LocalContext.current
+
+
+//            val currentTheme = userSettings._currentSettings.collectAsState()
+
+
             val items = mutableListOf(
                 SlideScreen(
                     bitmap = R.drawable.slider_img1,
@@ -76,27 +93,22 @@ class MainActivity : ComponentActivity() {
                     description = "To your dream trip",
                 ),
             )
-
-
             //Use states
             //State of slider screen
-
             val settingsEventBus = LocaleSettingsEventBus.current
 
             // StateFlow.value should not be called within composition
             val currentSettings = settingsEventBus.currentSettings.collectAsState()
 
-            val context = LocalContext.current
+            LaunchedEffect(Unit){
+                settingsEventBus.updateStyle(userSettings.getSettings())
+
+            }
+
             val auth = Firebase.auth
-
-//            val pagerState = rememberPagerState()
-
             val isDarkModeValue = isSystemInDarkTheme()
-//            val currentStyle = remember{ mutableStateOf(ExtendedJetStyle.Blue) }
-//            val currentFontSize = remember{ mutableStateOf(ExtendedJetSize.Medium) }
-//
-//            val currentPaddingSize = remember{ mutableStateOf(ExtendedJetSize.Medium) }
-//            val currentCornerStyle = remember { mutableStateOf(ExtendedJetCorners.Rounded) }
+
+
             val isDarkMode = remember {
                 mutableStateOf(isDarkModeValue)
             }
@@ -177,6 +189,8 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+
 }
 
 

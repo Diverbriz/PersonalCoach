@@ -47,7 +47,7 @@ fun MainScreen(
         val currentNav by navController.currentBackStackEntryAsState()
         when(currentNav?.destination?.route){
             "home" -> HomeScreen(context, auth)
-            "setting" -> SettingScreen()
+            "setting" -> SettingScreen(context)
             "play" -> PlayScreen()
             "bookmark" -> BookmarkScreen()
         }

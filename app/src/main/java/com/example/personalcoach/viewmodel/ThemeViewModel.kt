@@ -9,7 +9,7 @@ import com.example.personalcoach.ui.theme.ExtendedJetSize
 import com.example.personalcoach.ui.theme.ExtendedJetStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
 
-@HiltViewModel
+
 class ThemeViewModel(): ViewModel(){
 
     private val _state = mutableStateOf(ExtendedJetState())

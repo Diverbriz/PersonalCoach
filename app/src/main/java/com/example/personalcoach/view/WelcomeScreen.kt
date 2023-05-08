@@ -28,10 +28,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
 
 @Composable
-fun WelcomeScreen(
+fun WelcomeScreen (
     navController: NavHostController,
     auth: FirebaseAuth,
     viewModel: SplashViewModel = viewModel()

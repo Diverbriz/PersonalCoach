@@ -1,6 +1,7 @@
 package com.example.personalcoach.view.bottomNavigation.setting.view
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -39,14 +40,14 @@ import kotlinx.coroutines.launch
 import java.util.Calendar
 
 @Composable
-fun SettingScreen(){
-    TabLayout()
+fun SettingScreen(context: Context){
+    TabLayout(context)
 }
 
 @SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun TabLayout(){
+fun TabLayout(context: Context){
     val pagerState = rememberPagerState(initialPage = 1)
 
     Column(
@@ -80,7 +81,7 @@ fun TabLayout(){
         Tabs(pagerState = pagerState)
         // on below line we are calling tabs content
         // for displaying our page for each tab layout
-        TabsContent(pagerState = pagerState)
+        TabsContent(pagerState = pagerState, context)
 
     }
 }
@@ -163,7 +164,7 @@ fun Tabs(pagerState: PagerState) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TabsContent(pagerState: PagerState) {
+fun TabsContent(pagerState: PagerState, context: Context) {
 
     // on below line we are creating
     // horizontal pager for our tab layout.
@@ -172,7 +173,7 @@ fun TabsContent(pagerState: PagerState) {
         when (page) {
             // on below line we are calling tab content screen
             // and specifying data as Home Screen.
-            0 -> SettingThemeScreen()
+            0 -> SettingThemeScreen(context)
             // on below line we are calling tab content screen
             // and specifying data as Shopping Screen.
             1 -> TabContentScreen(data = "Welcome to Shopping Screen")

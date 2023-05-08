@@ -40,6 +40,10 @@ class SettingsEventBus {
     fun updatePaddingSize(paddingSize: ExtendedJetSize) {
         _currentSettings.value = _currentSettings.value.copy(paddingSize = paddingSize)
     }
+
+    fun updateStyle(settingsBundle: SettingsBundle){
+        _currentSettings.value = settingsBundle
+    }
 }
 
 internal val LocaleSettingsEventBus = staticCompositionLocalOf {

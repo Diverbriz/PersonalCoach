@@ -1,23 +1,28 @@
 package com.example.personalcoach.view.bottomNavigation.setting
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.personalcoach.data.features.LocaleSettingsEventBus
+import com.example.personalcoach.data.features.UserSettingImpl
+import com.example.personalcoach.data.features.UserSettings
+import com.example.personalcoach.domain.model.user.User
 import com.example.personalcoach.ui.theme.*
 import com.example.personalcoach.view.bottomNavigation.setting.view.MenuItem
 import com.example.personalcoach.view.bottomNavigation.setting.view.MenuItemModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+
 
 @Composable
 fun SettingTabs(){
@@ -50,11 +55,15 @@ fun SettingTabs(){
 }
 
 @Composable
-internal fun SettingThemeScreen(){
+internal fun SettingThemeScreen(context: Context){
     val settingsEventBus = LocaleSettingsEventBus.current
 
     // StateFlow.value should not be called within composition
     val currentSettings = settingsEventBus.currentSettings.collectAsState()
+
+    val coroutineContext = rememberCoroutineScope()
+
+    val userSettings: UserSettings = UserSettingImpl(context)
 
     Surface(
         color = ExtendedJetTheme.colors.secondaryBackground
@@ -84,7 +93,11 @@ internal fun SettingThemeScreen(){
                     )
                     Checkbox(
                         checked = currentSettings.value.isDarkMode, onCheckedChange = {
+//                            userSettings.getSettings()
                             settingsEventBus.updateDarkMode(!currentSettings.value.isDarkMode)
+                            coroutineContext.launch {
+                                userSettings.saveSettings(settingsEventBus.currentSettings.value)
+                            }
                         },
                         colors = CheckboxDefaults.colors(
                             checkedColor = ExtendedJetTheme.colors.tintColor,
@@ -116,6 +129,7 @@ internal fun SettingThemeScreen(){
                         )
                     ),
                     onItemSelected = {
+                        println(ExtendedJetSize.Small.toString())
                         settingsEventBus.updateTextSize(
                             when (it) {
                                 0 -> ExtendedJetSize.Small
@@ -124,6 +138,9 @@ internal fun SettingThemeScreen(){
                                 else -> throw NotImplementedError("No valid value for this $it")
                             }
                         )
+                        coroutineContext.launch {
+                            userSettings.saveSettings(settingsEventBus.currentSettings.value)
+                        }
                     }
                 )
 
@@ -150,6 +167,9 @@ internal fun SettingThemeScreen(){
                                 else -> throw NotImplementedError("No valid value for this $it")
                             }
                         )
+                        coroutineContext.launch {
+                            userSettings.saveSettings(settingsEventBus.currentSettings.value)
+                        }
                     }
                 )
 
@@ -173,6 +193,9 @@ internal fun SettingThemeScreen(){
                                 else -> throw NotImplementedError("No valid value for this $it")
                             }
                         )
+                        coroutineContext.launch {
+                            userSettings.saveSettings(settingsEventBus.currentSettings.value)
+                        }
                     }
                 )
 
@@ -189,24 +212,39 @@ internal fun SettingThemeScreen(){
                     ColorCard(color = if (currentSettings.value.isDarkMode) purpleDarkPalette.tintColor else purpleLightPalette.tintColor,
                         onClick = {
                             settingsEventBus.updateStyle(ExtendedJetStyle.Purple)
+                            coroutineContext.launch {
+                                userSettings.saveSettings(settingsEventBus.currentSettings.value)
+                            }
                         })
                     ColorCard(color = if (currentSettings.value.isDarkMode) orangeDarkPalette.tintColor else orangeLightPalette.tintColor,
                         onClick = {
                             settingsEventBus.updateStyle(ExtendedJetStyle.Orange)
+                            coroutineContext.launch {
+                                userSettings.saveSettings(settingsEventBus.currentSettings.value)
+                            }
                         })
                     ColorCard(color = if (currentSettings.value.isDarkMode) blueDarkPalette.tintColor else blueLightPalette.tintColor,
                         onClick = {
                             settingsEventBus.updateStyle(ExtendedJetStyle.Blue)
+                            coroutineContext.launch {
+                                userSettings.saveSettings(settingsEventBus.currentSettings.value)
+                            }
                         })
 
                     ColorCard(color = if (currentSettings.value.isDarkMode) redDarkPalette.tintColor else redLightPalette.tintColor,
                         onClick = {
                             settingsEventBus.updateStyle(ExtendedJetStyle.Red)
+                            coroutineContext.launch {
+                                userSettings.saveSettings(settingsEventBus.currentSettings.value)
+                            }
                         })
                 }
 
             }
         }
+//        LaunchedEffect(Unit){
+//            userSettings.saveSettings(settingsEventBus.currentSettings.value)
+//        }
     }
 
 
