@@ -1,5 +1,9 @@
 package com.example.personalcoach.view.auth
 
+import android.content.ContentValues.TAG
+import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,12 +34,19 @@ import com.example.personalcoach.ui.theme.ExtendedJetStyle
 import com.example.personalcoach.ui.theme.ExtendedJetTheme
 import com.example.personalcoach.ui.theme.MainTheme
 import com.example.personalcoach.ui.theme.createRoundedImageVector
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrationScreen(
-    navController: NavController
+    navController: NavController,
+    auth: FirebaseAuth,
+    context: Context
 ){
+    val scope = rememberCoroutineScope()
+
     var name by remember {
         mutableStateOf("")
     }
@@ -215,7 +226,36 @@ fun RegistrationScreen(
                             horizontalArrangement = Arrangement.Center,
                             modifier = Modifier
                                 .clickable {
-                                    navController.navigate("verification")
+                                    scope.launch {
+                                        delay(100)
+                                        if (email.value.isNotEmpty() && password.value.isNotEmpty()) {
+                                            auth.createUserWithEmailAndPassword(
+                                                email.value,
+                                                password.value
+                                            )
+                                                .addOnCompleteListener { task ->
+                                                    if (task.isSuccessful) {
+                                                        // Sign in success, update UI with the signed-in user's information
+                                                        Log.d(TAG, "createUserWithEmail:success")
+                                                        val user = auth.currentUser
+                                                        navController.navigate("introduction")
+                                                    } else {
+                                                        // If sign in fails, display a message to the user.
+                                                        Log.w(
+                                                            TAG,
+                                                            "createUserWithEmail:failure",
+                                                            task.exception
+                                                        )
+                                                        Toast.makeText(
+                                                            context,
+                                                            "Authentication failed.",
+                                                            Toast.LENGTH_SHORT,
+                                                        ).show()
+                                                    }
+                                                }
+                                        }
+                                    }
+
                                 }
                                 .background(
                                     color = ExtendedJetTheme.colors.tintColor,

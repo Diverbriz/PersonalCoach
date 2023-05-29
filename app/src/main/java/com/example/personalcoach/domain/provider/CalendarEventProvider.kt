@@ -7,8 +7,9 @@ import android.provider.CalendarContract
 import androidx.annotation.RequiresApi
 import com.example.personalcoach.domain.model.calendar.CalendarEvent
 import com.example.personalcoach.domain.model.calendar.CalendarItem
+import kotlinx.coroutines.delay
 
-class CalendarEventProvider(private val context: Context) {
+class CalendarEventProvider(   private val context: Context) {
 
     companion object {
         private val CALENDAR_PROJECTION = arrayOf(
@@ -28,7 +29,8 @@ class CalendarEventProvider(private val context: Context) {
             CalendarContract.Events.TITLE,
             CalendarContract.Events.DESCRIPTION,
             CalendarContract.Events.DTSTART,
-            CalendarContract.Events.DTEND
+            CalendarContract.Events.DTEND,
+            CalendarContract.Events.ACCOUNT_TYPE,
         )
 
         private const val PROJECTION_ID_INDEX = 0
@@ -43,18 +45,16 @@ class CalendarEventProvider(private val context: Context) {
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    fun getEvents(calendarId: Long): List<CalendarEvent>{
+
+    fun getEvents(): List<CalendarEvent>{
         val list = mutableListOf<CalendarEvent>()
 
         val uri = CalendarContract.Events.CONTENT_URI
 
-        val selectionArgs = arrayOf(
-            "$calendarId"
-        )
+        val selectionArgs = emptyArray<String>()
 
         val cursor = context.contentResolver
-            .query(uri, EVENT_PROJECTION, "${CalendarContract.Events.CALENDAR_ID}=?", selectionArgs, null)
+            .query(uri, EVENT_PROJECTION, "", selectionArgs, null)
 
         while (cursor?.moveToNext() == true){
             val calendarId = cursor.getLong(0)
@@ -63,19 +63,25 @@ class CalendarEventProvider(private val context: Context) {
             val description = cursor.getString(3)
             val dtstart = cursor.getString(4)
             val dtend = cursor.getString(5)
+            val type = cursor.getString(6)
 
-            println("$calendarId, $organizer, $title, $description, $dtstart, $dtend")
+            println("$calendarId, $organizer, $title, $description, $dtstart, $dtend, $type")
 
             list.add(CalendarEvent(
-                calendarId, organizer, title, description, null, dtend)
+                calendarId, organizer, title, description, dtstart, dtend, type)
             )
+
+
         }
         cursor?.close()
 
-//        list
-//            .stream()
-//            .map { println(it.toString()) }
-        return list
+
+//        list.forEach{
+//            println(it.toString())
+//        }
+        val sortedList = list.sortedWith(compareBy{it.id})
+
+        return sortedList
     }
 
     fun getCalendars():List<CalendarItem>
@@ -101,7 +107,6 @@ class CalendarEventProvider(private val context: Context) {
             val syncEvents = cursor.getInt(PROJECTION_SYNC_EVENTS_INDEX)
             val accountName = cursor.getString(PROJECTION_ACCOUNT_NAME_INDEX)
             val accountType = cursor.getString(PROJECTION_ACCOUNT_TYPE_INDEX)
-
             list.add(
                 CalendarItem(
                     id = calId,

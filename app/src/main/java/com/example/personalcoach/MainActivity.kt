@@ -160,7 +160,9 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("registration"){
                             RegistrationScreen(
-                                navController = navController
+                                navController = navController,
+                                auth = auth,
+                                context
                             )
                         }
                         composable("verification"){
@@ -186,10 +188,12 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-            }
-        }
-    }
 
+            }
+
+        }
+
+    }
 
 }
 

@@ -91,6 +91,14 @@ private val mockTrendingCourse = listOf(
     )
 )
 
+/**
+ * @function HomeScreen - главная страница,
+ * @author Sheloumov Vladimir
+ * @constructor
+ * наполнение - рекомендации, слайлеры и акции
+ *
+ * */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(

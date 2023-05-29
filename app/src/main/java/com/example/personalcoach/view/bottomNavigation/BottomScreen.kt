@@ -16,7 +16,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -26,6 +25,7 @@ import java.io.*
 import com.example.personalcoach.view.bottomNavigation.setting.view.SettingScreen
 import com.example.personalcoach.view.bottomNavigation.view.HomeScreen
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,21 +36,56 @@ fun MainScreen(
     auth: FirebaseAuth
 ){
 //    val scaffoldState = rememberScaffoldState()
-
+    val openDialog = remember {
+        mutableStateOf(false)
+    }
     Scaffold(
         topBar = {
-            AppToolBar()
+            AppToolBar(auth, context, openDialog)
         },
         bottomBar = { BottomNav(navController = navController) },
 
     ) {
         val currentNav by navController.currentBackStackEntryAsState()
-        when(currentNav?.destination?.route){
-            "home" -> HomeScreen(context, auth)
-            "setting" -> SettingScreen(context)
-            "play" -> PlayScreen()
-            "bookmark" -> BookmarkScreen()
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            when(currentNav?.destination?.route){
+                "home" -> HomeScreen(context, auth)
+                "setting" -> SettingScreen(context)
+                "play" -> PlayScreen()
+                "bookmark" -> BookmarkScreen()
+            }
         }
+             if(openDialog.value){
+                 AlertDialog(
+                     onDismissRequest = {
+                         openDialog.value = false
+                     },
+                     title = { Text(text = "Подтверждение действия") },
+                     text = { Text("Вы действительно хотите выйти?") },
+                     confirmButton = {
+                         Button(
+                             modifier = Modifier.
+                             fillMaxWidth(0.4f),
+                             onClick = { openDialog.value = false }
+                         ) {
+                             Text("Ok")
+                         }
+                     },
+                     dismissButton = {
+                         Button(
+                             modifier = Modifier.
+                             fillMaxWidth(0.4f),
+                             onClick = { openDialog.value = false }
+                         ) {
+                             Text("Cancel")
+                         }
+                     }
+                 )
+             }
     }
 }
 
@@ -98,73 +133,10 @@ fun BottomNav(
                     selectedContentColor = Color.Red,
                     unselectedContentColor = Color.Cyan
                     )
-
         }
     }
 
 }
-
-
-//    Column(
-//        modifier = Modifier.fillMaxSize(),
-//        verticalArrangement = Arrangement.SpaceEvenly,
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//        val fileName = remember { mutableStateOf("") }
-//        val fileData = remember { mutableStateOf("") }
-//
-//        OutlinedTextField(value = fileName.value, onValueChange = { fileName.value = it }, label = {
-//            Text(
-//                text = "Type a file name"
-//            )
-//        })
-//        OutlinedTextField(value = fileData.value, onValueChange = { fileData.value = it }, label = {
-//            Text(
-//                text = "Type a file data"
-//            )
-//        })
-//        Button(onClick = {
-//            val file: String = fileName.value
-//            val data: String = fileData.value
-//            val fileOutputStream: FileOutputStream
-//            try {
-//                fileOutputStream = context.openFileOutput(file, Context.MODE_PRIVATE)
-//                fileOutputStream.write(data.toByteArray())
-//            } catch (e: FileNotFoundException) {
-//                e.printStackTrace()
-//            } catch (e: NumberFormatException) {
-//                e.printStackTrace()
-//            } catch (e: IOException) {
-//                e.printStackTrace()
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//            Toast.makeText(context, "data save", Toast.LENGTH_LONG).show()
-//            fileName.value = ""
-//            fileData.value = ""
-//        }) { Text(text = "Save") }
-//        Button(onClick = {
-//            val filename = fileName.value
-//            if (filename.trim() != "") {
-//                val fileInputStream = context.openFileInput(filename)
-//                val inputStreamReader = InputStreamReader(fileInputStream)
-//                val bufferedReader = BufferedReader(inputStreamReader)
-//                val stringBuilder: StringBuilder = StringBuilder()
-//                var text: String?
-//                while (run {
-//                        text = bufferedReader.readLine()
-//                        text
-//                    } != null) {
-//                    stringBuilder.append(text)
-//                }
-//                fileData.value = stringBuilder.toString()
-//            } else {
-//                Toast.makeText(context, "file name cannot be blank", Toast.LENGTH_LONG).show()
-//            }
-//        }) { Text(text = "View") }
-//    }
-
-
 
 @Composable
 fun PlayScreen(){
@@ -193,10 +165,13 @@ fun BookmarkScreen(){
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview(showBackground = true)
 fun AppToolBar(
+    auth: FirebaseAuth,
+    context: Context,
+    openDialog: MutableState<Boolean>
 //    navController: NavController
 ) {
+    val scope = rememberCoroutineScope()
 
     TopAppBar(
         title = { Text(text = "Teamer", style = ExtendedJetTheme.typography.heading, color = ExtendedJetTheme.colors.primaryText,
@@ -218,7 +193,16 @@ fun AppToolBar(
                     tint = ExtendedJetTheme.colors.primaryText
                 )
             }
-            IconButton(onClick = { }) {
+            IconButton(onClick = {
+                scope.launch {
+                    if(auth.currentUser != null){
+                        println(auth.currentUser?.email)
+                        openDialog.value = true
+                    }else{
+                        println("nullllllllllllll")
+                    }
+                }
+            }) {
                 Icon(
                     imageVector = Icons.Default.AccountCircle,
                     contentDescription = "Account icon",

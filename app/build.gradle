@@ -4,8 +4,7 @@ plugins {
     id 'com.google.gms.google-services'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
-
-}
+    id 'org.jetbrains.dokka' version '1.8.10'}
 
 android {
     namespace 'com.example.personalcoach'
@@ -13,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.personalcoach"
-        minSdk 23
+        minSdk 26
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -88,6 +87,7 @@ dependencies {
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation 'androidx.compose.material3:material3:1.0.1'
     implementation "io.github.vanpra.compose-material-dialogs:core:${vanpra_version}"
+    implementation "io.github.vanpra.compose-material-dialogs:datetime:${vanpra_version}"
 
 
 
@@ -101,6 +101,7 @@ dependencies {
     //System UI controller
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.30.0"
 
+    dokkaPlugin("org.jetbrains.dokka:android-documentation-plugin:1.8.10")
     //Test
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

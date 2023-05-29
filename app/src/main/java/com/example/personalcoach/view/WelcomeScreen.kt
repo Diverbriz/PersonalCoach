@@ -78,12 +78,18 @@ fun WelcomeScreen (
 
             println(state.isAnimated)
             println(state.counter)
-            val route = delayNavigation(auth.currentUser!!);
 
-            println(currentUser?.email)
-
-            navController.navigate(route.first())
-
+            delay(2000)
+            if(auth.currentUser != null){
+                navController.navigate("home")
+            }
+            else{
+                navController.navigate("introduction")
+            }
+//            println(currentUser?.email)
+//            val route = delayNavigation(auth.currentUser);
+//            println(route.first())
+//            navController.navigate(route.first())
         }
 
     }

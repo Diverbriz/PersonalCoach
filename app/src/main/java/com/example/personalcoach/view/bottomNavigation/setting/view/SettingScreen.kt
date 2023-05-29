@@ -2,6 +2,8 @@ package com.example.personalcoach.view.bottomNavigation.setting.view
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -162,6 +164,7 @@ fun Tabs(pagerState: PagerState) {
 }
 
 
+@RequiresApi(Build.VERSION_CODES.N)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TabsContent(pagerState: PagerState, context: Context) {
