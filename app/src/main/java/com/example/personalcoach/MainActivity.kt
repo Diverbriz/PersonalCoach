@@ -45,6 +45,13 @@ import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 
+
+/**
+ * Класс представляет собой главную активность,
+ * в дереве Compose является родительским классом
+ * @annotation помечен анотацией Hilt @AndroidEntryPoint
+ * @extends ComponentActivity - наследуется от базовой активити
+ * */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -64,6 +71,12 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+    /**
+     * @annotation помечен анотацией ExperimentalFoundationApi
+     * @method метод жизненного цикла - onCreate
+     * @body - настройки темы, навигации и шторки инструментов
+     * */
     @ExperimentalFoundationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,7 +115,6 @@ class MainActivity : ComponentActivity() {
 
             LaunchedEffect(Unit){
                 settingsEventBus.updateStyle(userSettings.getSettings())
-
             }
 
             val auth = Firebase.auth

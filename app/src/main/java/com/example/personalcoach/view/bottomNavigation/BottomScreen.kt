@@ -70,9 +70,12 @@ fun MainScreen(
                          Button(
                              modifier = Modifier.
                              fillMaxWidth(0.4f),
-                             onClick = { openDialog.value = false }
+                             onClick = { openDialog.value = false
+                                auth.signOut()
+                                 navController.navigate("login")
+                             }
                          ) {
-                             Text("Ok")
+                             Text("Yes")
                          }
                      },
                      dismissButton = {
@@ -89,6 +92,11 @@ fun MainScreen(
     }
 }
 
+/**
+ * @method метод жизненного цикла - onCreate
+ * @body - настройка нижней навигации
+ * @button - Home, Bookmark, Setting, Play
+ * */
 @Composable
 fun BottomNav(
     navController: NavController
@@ -163,6 +171,13 @@ fun BookmarkScreen(){
 
 
 
+/**
+ * @annotation помечен анотацией ExperimentalFoundationApi
+ * @method метод жизненного цикла - onCreate
+ * @body - настройка шапки приложения
+ * В левом углу - название приложения и логотип
+ * @button - профиль и уведомления
+ * */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppToolBar(

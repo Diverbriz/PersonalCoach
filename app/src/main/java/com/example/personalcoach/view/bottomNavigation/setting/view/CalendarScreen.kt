@@ -1,14 +1,13 @@
 package com.example.personalcoach.view.bottomNavigation.setting.view
 
 import android.Manifest.permission.READ_CALENDAR
+import android.Manifest.permission.WRITE_CALENDAR
+import android.content.ContentValues
 import android.content.pm.PackageManager
-import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,23 +25,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.personalcoach.data.utils.convertLongToTime
+import com.example.personalcoach.domain.model.calendar.CalendarEvent
 import com.example.personalcoach.domain.model.calendar.CalendarItem
 import com.example.personalcoach.domain.provider.CalendarEventProvider
 import com.example.personalcoach.ui.theme.ExtendedJetTheme
+import com.example.personalcoach.view.auth.startTimer
 import com.example.personalcoach.view.bottomNavigation.setting.viewmodel.CalendarViewModel
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
+import com.vanpra.composematerialdialogs.datetime.time.timepicker
+import com.vanpra.composematerialdialogs.input
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
 private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+
+private lateinit var calendarRequest: ActivityResultLauncher<String>
 
 
 
@@ -53,20 +57,54 @@ fun CalendarScreen(
 //    var date by remember {
 //        mutableStateOf("")
 //    }
-    lateinit var calendarEventProvider: CalendarEventProvider
 
-    val scrollState = rememberScrollState()
+
+
+    val dialogTimerState = rememberMaterialDialogState(false)
 
     val dialogState = rememberMaterialDialogState(false)
 
-    val observeItem = mViewModel._calendarItem.observeAsState()
+
 
     val observeEvent = mViewModel._calendarEvent.observeAsState()
 
-
     val context = LocalContext.current
-    calendarEventProvider = CalendarEventProvider(context = context)
+    val calendarEventProvider = CalendarEventProvider(context = context)
     val scope = rememberCoroutineScope()
+
+    val descriptionState = rememberMaterialDialogState(false)
+    val beginTime = remember {
+        mutableStateOf(Calendar.getInstance())
+    }
+
+    val endTime = remember {
+        mutableStateOf(Calendar.getInstance())
+    }
+
+    val title = remember {
+        mutableStateOf("")
+    }
+    val description = remember {
+        mutableStateOf("")
+    }
+
+    calendarRequest = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()){
+        if(it){
+            scope.launch {
+                Toast.makeText(
+                    context,
+                    "Разрешения есть",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }else{
+            Toast.makeText(
+                context,
+                "Please allow this app to access your calendar",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
     requestPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
             if (it) {
@@ -82,6 +120,35 @@ fun CalendarScreen(
                 ).show()
             }
         }
+
+
+    MaterialDialog(
+        dialogState = descriptionState,
+        buttons = {
+            positiveButton("Ok")
+            negativeButton("Cancel")
+        },
+        onCloseRequest = {
+            if(title.value != "" && description.value != ""){
+                it.hide()
+                dialogState.show()
+            }
+        }
+    ) {
+        Text(
+            text = "Настройка события",
+            style = ExtendedJetTheme.typography.heading.copy(fontSize = 18.sp),
+            color = ExtendedJetTheme.colors.inputText
+        )
+        input(label = "Title"){
+            title.value = it
+        }
+        input(label = "Description"){
+            description.value = it
+            dialogState.show()
+        }
+    }
+
     MaterialDialog(
         dialogState = dialogState,
         buttons = {
@@ -90,46 +157,69 @@ fun CalendarScreen(
         }
     ) {
         datepicker { date ->
-            println(date.dayOfMonth)
-            println(date.month)
-            println(date.dayOfYear)
+            beginTime.value.set(date.year, date.monthValue, date.dayOfMonth)
+            endTime.value.set(date.year, date.monthValue, date.dayOfMonth)
+            dialogTimerState.show()
         }
     }
 
+    MaterialDialog(
+        dialogState = dialogTimerState,
+        buttons = {
+            positiveButton("Add")
+            negativeButton("Cancel")
+        }
+    ) {
+        timepicker { time ->
+            beginTime.value.set(Calendar.HOUR, time.hour)
+            beginTime.value.set(Calendar.MINUTE, time.minute)
 
+            endTime.value.set(Calendar.HOUR, time.hour + 60*12*36)
+            endTime.value.set(Calendar.MINUTE, time.minute)
+            val obj = CalendarEvent(
+                1,
+                "",
+                title = title.value,
+                description = description.value,
+                beginTime.value.timeInMillis.toString(),
+                endTime.value.timeInMillis.toString(),
+                "Sport"
+            )
+
+            scope.launch {
+                if (ContextCompat.checkSelfPermission(
+                        context,
+                        WRITE_CALENDAR
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    println("Разрешение есть")
+                    calendarEventProvider.createEvent(obj)
+                } else {
+                    calendarRequest.launch(WRITE_CALENDAR)
+                }
+
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-//        AndroidView(factory = {CalendarView(it)}, update = {
-//            it.setOnDateChangeListener { calendarView, year,
-//                                         month, day ->
-//                date = "$day - ${month+1} - $year"
-//            }
-//        })
-
 
         Spacer(modifier = Modifier.height(20.dp))
         Column(
-            Modifier
-                .background(ExtendedJetTheme.colors.tintColor)
-                .clickable {
-//                    scope.launch(Dispatchers.Main) {
-////                            requestPermissionLauncher.launch(READ_CALENDAR)
-////                        mViewModel._calendarEvent.value = calendarEventProvider.getEvents()
-//
-//                    }
-
-                },
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             ExtendedFloatingActionButton(
                 icon = { Icon(Icons.Filled.Add, contentDescription = "Добавить") },
                 text = { Text("Добавить") },
-                onClick = { dialogState.show()}
+                onClick = {
+//                    dialogState.show()
+                    descriptionState.show()
+                }
             )
         }
 
@@ -274,3 +364,32 @@ fun CalendarScreen(
         }
     }
 
+
+@Composable
+fun MyAlertDialog(
+    title: @Composable () -> Unit,
+    content: @Composable () -> Unit,
+    dismissButton: @Composable () -> Unit,
+    confirmButton: @Composable () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Dialog(onDismiss) {
+            Column {
+                Column(Modifier.padding(24.dp)) {
+                    title.invoke()
+                    Spacer(Modifier.size(16.dp))
+                    content.invoke()
+                }
+                Spacer(Modifier.size(4.dp))
+                Row(
+                    Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth(),
+                    Arrangement.spacedBy(8.dp, Alignment.End),
+                ) {
+                    dismissButton.invoke()
+                    confirmButton.invoke()
+                }
+            }
+    }
+}

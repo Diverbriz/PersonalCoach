@@ -125,7 +125,10 @@ fun RegistrationScreen(
                         trailingIcon = { Icon(
                             Icons.Default.AccountCircle, contentDescription = "Email",
                             tint = ExtendedJetTheme.colors.tintColor)
-                        }
+                        },
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            textColor = ExtendedJetTheme.colors.primaryText
+                        )
                     )
 
                     OutlinedTextField(
@@ -145,7 +148,10 @@ fun RegistrationScreen(
                             Icons.Default.Email,
                             contentDescription = "Valid email",
                             tint = ExtendedJetTheme.colors.tintColor)
-                        }
+                        },
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            textColor = ExtendedJetTheme.colors.primaryText
+                        )
                     )
 
                     OutlinedTextField(
@@ -165,7 +171,10 @@ fun RegistrationScreen(
                             Icons.Default.Phone,
                             contentDescription = "Phone number",
                             tint = ExtendedJetTheme.colors.tintColor)
-                        }
+                        },
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            textColor = ExtendedJetTheme.colors.primaryText
+                        )
                     )
                     OutlinedTextField(
                         value = password.value,
@@ -184,7 +193,10 @@ fun RegistrationScreen(
                             Icons.Default.Lock,
                             contentDescription = "Strong Password",
                             tint = ExtendedJetTheme.colors.tintColor)
-                        }
+                        },
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            textColor = ExtendedJetTheme.colors.primaryText
+                        )
                     )
 
                     Row (modifier = Modifier
@@ -229,16 +241,17 @@ fun RegistrationScreen(
                                     scope.launch {
                                         delay(100)
                                         if (email.value.isNotEmpty() && password.value.isNotEmpty()) {
-                                            auth.createUserWithEmailAndPassword(
-                                                email.value,
-                                                password.value
-                                            )
+                                            auth
+                                                .createUserWithEmailAndPassword(
+                                                    email.value,
+                                                    password.value
+                                                )
                                                 .addOnCompleteListener { task ->
                                                     if (task.isSuccessful) {
                                                         // Sign in success, update UI with the signed-in user's information
                                                         Log.d(TAG, "createUserWithEmail:success")
                                                         val user = auth.currentUser
-                                                        navController.navigate("introduction")
+                                                        navController.navigate("home")
                                                     } else {
                                                         // If sign in fails, display a message to the user.
                                                         Log.w(
@@ -246,11 +259,13 @@ fun RegistrationScreen(
                                                             "createUserWithEmail:failure",
                                                             task.exception
                                                         )
-                                                        Toast.makeText(
-                                                            context,
-                                                            "Authentication failed.",
-                                                            Toast.LENGTH_SHORT,
-                                                        ).show()
+                                                        Toast
+                                                            .makeText(
+                                                                context,
+                                                                "Authentication failed.",
+                                                                Toast.LENGTH_SHORT,
+                                                            )
+                                                            .show()
                                                     }
                                                 }
                                         }

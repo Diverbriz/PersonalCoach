@@ -1,13 +1,15 @@
 package com.example.personalcoach.domain.provider
 
-import android.annotation.SuppressLint
+import android.Manifest
+import android.content.ContentValues
 import android.content.Context
-import android.os.Build
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.provider.CalendarContract
-import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import com.example.personalcoach.domain.model.calendar.CalendarEvent
 import com.example.personalcoach.domain.model.calendar.CalendarItem
-import kotlinx.coroutines.delay
+import java.util.*
 
 class CalendarEventProvider(   private val context: Context) {
 
@@ -125,6 +127,49 @@ class CalendarEventProvider(   private val context: Context) {
         cursor?.close()
 
         return list
+    }
+
+    fun createEvent(
+        calendarEvent: CalendarEvent
+    ){
+
+
+        try {
+//            val startMillis: Long = Calendar.getInstance().run {
+//                set(2012, 9, 14, 7, 30)
+//                timeInMillis
+//            }
+//            val endMillis: Long = Calendar.getInstance().run {
+//                set(2012, 9, 14, 8, 45)
+//                timeInMillis
+//            }
+
+            val values = ContentValues().apply {
+                put(CalendarContract.Events.DTSTART, calendarEvent.dtstart?.toLong())
+                put(CalendarContract.Events.DTEND, calendarEvent.dtend?.toLong())
+                put(CalendarContract.Events.TITLE, calendarEvent.title)
+                put(CalendarContract.Events.DESCRIPTION, calendarEvent.description)
+                put(CalendarContract.Events.CALENDAR_ID, 3)
+                put(CalendarContract.Events.EVENT_TIMEZONE, "America/Los_Angeles")
+            }
+
+            println(values)
+
+//            if (ContextCompat.checkSelfPermission(context.applicationContext, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED){
+                val uri: Uri? = context.contentResolver.insert(CalendarContract.Events.CONTENT_URI, values)
+                val eventID: Long = uri?.lastPathSegment?.toLong() ?: 0
+
+//            }
+//            else{
+//                println("---------------")
+//            }
+
+        }catch (e: Exception){
+            e.printStackTrace()
+        }
+//        val eventID = uri?.lastPathSegment?.toLong();
+//        println("EventId $eventID")
+
     }
 
 
