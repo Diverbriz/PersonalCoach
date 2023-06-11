@@ -43,8 +43,6 @@ class CalendarEventProvider(   private val context: Context) {
         private const val PROJECTION_SYNC_EVENTS_INDEX = 5
         private const val PROJECTION_ACCOUNT_NAME_INDEX = 6
         private const val PROJECTION_ACCOUNT_TYPE_INDEX = 7
-
-
     }
 
 
@@ -77,10 +75,6 @@ class CalendarEventProvider(   private val context: Context) {
         }
         cursor?.close()
 
-
-//        list.forEach{
-//            println(it.toString())
-//        }
         val sortedList = list.sortedWith(compareBy{it.id})
 
         return sortedList
@@ -88,7 +82,6 @@ class CalendarEventProvider(   private val context: Context) {
 
     fun getCalendars():List<CalendarItem>
     {
-//        calendarItemAdapter.clearData()
         val list = mutableListOf<CalendarItem>()
 
         val uri = CalendarContract.Calendars.CONTENT_URI
@@ -133,16 +126,7 @@ class CalendarEventProvider(   private val context: Context) {
         calendarEvent: CalendarEvent
     ){
 
-
         try {
-//            val startMillis: Long = Calendar.getInstance().run {
-//                set(2012, 9, 14, 7, 30)
-//                timeInMillis
-//            }
-//            val endMillis: Long = Calendar.getInstance().run {
-//                set(2012, 9, 14, 8, 45)
-//                timeInMillis
-//            }
 
             val values = ContentValues().apply {
                 put(CalendarContract.Events.DTSTART, calendarEvent.dtstart?.toLong())
@@ -155,20 +139,13 @@ class CalendarEventProvider(   private val context: Context) {
 
             println(values)
 
-//            if (ContextCompat.checkSelfPermission(context.applicationContext, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED){
-                val uri: Uri? = context.contentResolver.insert(CalendarContract.Events.CONTENT_URI, values)
-                val eventID: Long = uri?.lastPathSegment?.toLong() ?: 0
+            val uri: Uri? = context.contentResolver.insert(CalendarContract.Events.CONTENT_URI, values)
+            val eventID: Long = uri?.lastPathSegment?.toLong() ?: 0
 
-//            }
-//            else{
-//                println("---------------")
-//            }
 
         }catch (e: Exception){
             e.printStackTrace()
         }
-//        val eventID = uri?.lastPathSegment?.toLong();
-//        println("EventId $eventID")
 
     }
 

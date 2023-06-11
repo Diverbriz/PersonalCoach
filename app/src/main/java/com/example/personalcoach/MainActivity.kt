@@ -11,7 +11,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -23,26 +22,25 @@ import androidx.navigation.compose.rememberNavController
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import androidx.security.crypto.MasterKeys
-import com.example.personalcoach.data.features.LocaleSettingsEventBus
-import com.example.personalcoach.data.features.UserSettingImpl
-import com.example.personalcoach.data.features.UserSettings
 import com.example.personalcoach.domain.SettingsBundle
+import com.example.personalcoach.domain.features.LocaleSettingsEventBus
+import com.example.personalcoach.domain.features.UserSettings
 import com.example.personalcoach.domain.model.SlideScreen
-import com.example.personalcoach.ui.theme.*
-import com.example.personalcoach.view.Slider
-import com.example.personalcoach.ui.theme.MainTheme
-import com.example.personalcoach.view.WelcomeScreen
-import com.example.personalcoach.view.auth.LoginScreen
-import com.example.personalcoach.view.auth.RegistrationScreen
-import com.example.personalcoach.view.auth.VerificationScreen
-import com.example.personalcoach.view.bottomNavigation.BottomNav
-import com.example.personalcoach.view.bottomNavigation.MainScreen
+import com.example.personalcoach.domain.utils.*
+import com.example.personalcoach.presenter.ui.theme.ExtendedJetTheme
+import com.example.personalcoach.presenter.ui.theme.MainTheme
+import com.example.personalcoach.presenter.ui.theme.baseDarkPalette
+import com.example.personalcoach.presenter.ui.theme.baseLightPalette
+import com.example.personalcoach.presenter.view.Slider
+import com.example.personalcoach.presenter.view.WelcomeScreen
+import com.example.personalcoach.presenter.view.auth.LoginScreen
+import com.example.personalcoach.presenter.view.auth.RegistrationScreen
+import com.example.personalcoach.presenter.view.auth.VerificationScreen
+import com.example.personalcoach.presenter.view.bottomNavigation.MainScreen
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.HiltAndroidApp
-import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 
 
@@ -144,11 +142,9 @@ class MainActivity : ComponentActivity() {
 
                 Surface(color = ExtendedJetTheme.colors.primaryBackground) {
                     val navController = rememberNavController()
-                    val navIntroductionItems = listOf("welcome", "introduction", "login", "registration", "verification", "home")
-//            AuthenticationScreen(context = applicationContext, startForResultSignIn = startForResultSignIn)
-                    NavHost(navController = navController, startDestination ="welcome"){
-                        composable("welcome"){ WelcomeScreen(navController = navController, auth) }
-                        composable("introduction"){
+                    NavHost(navController = navController, startDestination = welcome){
+                        composable(welcome){ WelcomeScreen(navController = navController, auth) }
+                        composable(introduction){
                             Slider(
                                 items = items,
 //                                pagerState = pagerState,
@@ -158,44 +154,39 @@ class MainActivity : ComponentActivity() {
                                 navigation = navController
                             )
                         }
-//                        composable("login"){
-//                            AuthenticationScreen(context = applicationContext,
-//                                startForResultSignIn = startForResultSignIn)
-//                        }
-
-                        composable("login"){
+                        composable(login){
                             LoginScreen(
                                 navController = navController,
                                 context = context,
                                 auth = auth
                             )
                         }
-                        composable("registration"){
+                        composable(registration){
                             RegistrationScreen(
                                 navController = navController,
                                 auth = auth,
                                 context
                             )
                         }
-                        composable("verification"){
+                        composable(verification){
                             VerificationScreen(
                                 navController = navController
                             )
                         }
 
-                        composable("home"){
+                        composable(home){
                             MainScreen(navController = navController, context = context, auth)
                         }
 
-                        composable("setting"){
+                        composable(settings){
                             MainScreen(navController = navController, context = context, auth)
                         }
 
-                        composable("bookmark"){
+                        composable(bookmark){
                             MainScreen(navController = navController, context = context, auth)
                         }
 
-                        composable("play"){
+                        composable(play){
                             MainScreen(navController = navController, context = context, auth)
                         }
                     }

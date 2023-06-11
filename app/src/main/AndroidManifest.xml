@@ -4,7 +4,8 @@
 
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
-
+    <!--permissions for INTERNET-->
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:name=".di.MyApplication"
@@ -12,7 +13,7 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/g_logo_1"
-        android:label="@string/app_name"
+        android:usesCleartextTraffic="true"
         android:roundIcon="@drawable/g_logo_1"
         android:supportsRtl="true"
         android:theme="@style/Theme.PersonalCoach"
