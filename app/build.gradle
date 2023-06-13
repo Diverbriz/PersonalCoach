@@ -61,6 +61,8 @@ dependencies {
     //Hilt dependencies
     implementation "com.google.dagger:hilt-android:$di_version"
     kapt "com.google.dagger:hilt-compiler:$di_version"
+    implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
+
     implementation 'com.google.code.gson:gson:2.8.5'
     // Import the BoM for the Firebase platform
     implementation platform('com.google.firebase:firebase-bom:31.4.0')

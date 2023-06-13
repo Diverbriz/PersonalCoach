@@ -27,13 +27,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.personalcoach.MainActivity
 import com.example.personalcoach.R
+import com.example.personalcoach.domain.model.user.LoginRequest
+import com.example.personalcoach.domain.utils.home
 import com.example.personalcoach.presenter.ui.theme.ExtendedJetTheme
 import com.example.personalcoach.presenter.ui.theme.baseDarkPalette
 import com.example.personalcoach.presenter.ui.theme.baseLightPalette
 import com.example.personalcoach.presenter.ui.theme.createRoundedImageVector
+import com.example.personalcoach.presenter.viewmodel.auth.AuthState
+import com.example.personalcoach.presenter.viewmodel.auth.LoginViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -44,6 +50,7 @@ fun LoginScreen(
     navController: NavController,
     auth: FirebaseAuth,
     context: Context,
+    mViewModel: LoginViewModel = hiltViewModel()
 //    startForResultSignIn: ActivityResultLauncher<Intent>
 ){
 
@@ -114,7 +121,10 @@ fun LoginScreen(
                 shape = RoundedCornerShape(8.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 trailingIcon = { Icon(Icons.Default.Email, contentDescription = "Email",
-                    tint = ExtendedJetTheme.colors.tintColor)}
+                    tint = ExtendedJetTheme.colors.tintColor)},
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    textColor = ExtendedJetTheme.colors.primaryText
+                )
             )
 
             OutlinedTextField(
@@ -132,7 +142,10 @@ fun LoginScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 trailingIcon = { Icon(Icons.Default.Lock,
                     contentDescription = "Password",
-                    tint = ExtendedJetTheme.colors.tintColor)}
+                    tint = ExtendedJetTheme.colors.tintColor)},
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    textColor = ExtendedJetTheme.colors.primaryText
+                )
             )
 
             Row (modifier = Modifier
@@ -168,23 +181,12 @@ fun LoginScreen(
                     modifier = Modifier
                         .clickable {
                             if (email.value.isNotEmpty() && password.value.isNotEmpty()) {
-                                auth
-                                    .signInWithEmailAndPassword(email.value, password.value)
-                                    .addOnCompleteListener { task ->
-                                        if (task.isSuccessful) {
-
-                                            val user = auth.currentUser
-                                            Log.d(TAG, "createUserWithEmail:success ${user?.email}")
-                                        } else {
-                                            Toast
-                                                .makeText(
-                                                    context,
-                                                    "Please check that your email address and password are correct",
-                                                    Toast.LENGTH_SHORT
-                                                )
-                                                .show()
-                                        }
-                                    }
+                                println("${email.value} ${password.value}")
+                                mViewModel.login(LoginRequest(email.value, password.value))
+                                when(mViewModel.response.value){
+                                    is AuthState.Success -> println("Success")
+                                    else -> println("Loading")
+                                }
                             } else {
                                 coroutineLogin.launch {
                                     snackbarHostState.showSnackbar(
