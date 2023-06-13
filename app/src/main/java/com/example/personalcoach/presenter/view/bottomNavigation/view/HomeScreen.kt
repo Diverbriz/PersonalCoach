@@ -101,14 +101,14 @@ private val mockTrendingCourse = listOf(
 fun HomeScreen(
     context: Context,
     auth: FirebaseAuth,
-    mainViewModel: HomeViewModel = viewModel()
+//    mainViewModel: HomeViewModel = viewModel()
 ) {
     var search by remember {
         mutableStateOf("")
     }
     val listState = rememberLazyListState()
 
-    val searchLiveData = mainViewModel.searchRequest
+//    val searchLiveData = mainViewModel.searchRequest
 
     val scrollState = rememberScrollState()
     Column(

@@ -5,14 +5,14 @@ data class ItemResponse(
     val url: MutableList<String>
 )
 data class Item(
-    var id: Long? = null,
-    var name: String? = null,
+    val id: Long? = null,
+    val name: String? = null,
     val price: Float = 0f,
     val rating: Float = 0f,
 
-    var typeId: Type? = null,
+    val typeId: Type? = null,
 
-    var brandId: Brand? = null
+    val brandId: Brand? = null
 )
 
 data class Type(
