@@ -16,4 +16,7 @@ interface ApiService {
         @Query("brandName") brandName: String = "",
         @Query("typeName") typeName: String = ""
     ):List<ItemResponse>
+
+
+
 }
